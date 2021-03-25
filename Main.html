@@ -1,0 +1,268 @@
+<!doctype html>
+<html>
+<head>
+	<title>Döviz Simülasyonu</title>
+	<script src="chart.min.js"></script>
+	<script src="utils.js"></script>
+	<style>
+		canvas
+		{
+			-moz-user-select: none;
+			-webkit-user-select: none;
+			-ms-user-select: none;
+		}
+	</style>
+</head>
+<body>
+	<input id = 'Money' type = 'number' placeholder = 'Para Miktarı'>
+	<button id="MoneyBuy">Al</button>
+	<button id="MoneySell">Sat</button><br/>
+	<input id = 'User' type = 'number' placeholder = 'Kullanıcı Miktarı'>
+	<input id = 'MoneyType' type = 'number' placeholder = 'Para Türü'>
+	<button id="UserAdd">Ekle</button>
+	<button id="UserRemove">Çıkar</button><br/>
+	<input id = 'Money2' type = 'number' placeholder = 'Boşta Para Miktarı'>
+	<input id = 'MoneyType2' type = 'number' placeholder = 'Para Türü'>
+	<button id="FreeMoneyAdd">Ekle</button>
+	<button id="FreeMoneyRemove">Çıkar</button><br/>
+	<div id = 'Info' style = 'border: 1px solid lightgray;'></div>
+	<center><div style="width:50%;"><canvas id="canvas"></canvas></div></center>
+	<br>
+	<script>
+		var LabelCount = 1;
+		var MoneyA = 100;
+		var FreeMoneyA = 90;
+		var MoneyUsersA = 1;
+		var MoneyB = 100;
+		var FreeMoneyB = 90;
+		var MoneyUsersB = 1;
+		document.getElementById('Info').innerHTML = "Para Birimi 1 Miktarı: " + MoneyA + " - Boşta Para Miktarı: " + FreeMoneyA + " - Kullanıcı Sayısı: " + MoneyUsersA + "<br/>Para Birimi 2 Miktarı: " + MoneyB + " - Boşta Para Miktarı: " + FreeMoneyB + " - Kullanıcı Sayısı: " + MoneyUsersB + "<br/><center>1 - 1</center>";
+		function MoneyUpdate()
+		{
+            if (MoneyA < 0)
+            {
+                MoneyA = 0;
+            }
+            if (MoneyB < 0)
+            {
+                MoneyB = 0;
+            }
+			LabelCount = ++LabelCount;
+			config.data.labels.push(LabelCount);
+            var c = (MoneyB / MoneyA) + (MoneyUsersA / 100) - (FreeMoneyA / 1000);
+            var d = (MoneyA / MoneyB) + (MoneyUsersB / 100) - (FreeMoneyB / 1000);
+            var xc = c / d;
+            var xy = d / c;
+            if (xc < 0.1)
+            {
+                xc = 0.1;
+            }
+            if (xy < 0.1)
+            {
+                xy = 0.1;
+            }
+            if (FreeMoneyA < 0.1)
+            {
+                FreeMoneyA = 0.1;
+            }
+            if (FreeMoneyB < 0.1)
+            {
+                FreeMoneyB = 0.1;
+            }
+            if (MoneyUsersA < 0)
+            {
+                MoneyUsersA = 0;
+            }
+            if (MoneyUsersB < 0)
+            {
+                MoneyUsersB = 0;
+            }
+			document.getElementById('Info').innerHTML = "Para Birimi 1 Miktarı: " + MoneyA + " - Boşta Para Miktarı: " + FreeMoneyA + " - Kullanıcı Sayısı: " + MoneyUsersA + "<br/>Para Birimi 2 Miktarı: " + MoneyB + " - Boşta Para Miktarı: " + FreeMoneyB + " - Kullanıcı Sayısı: " + MoneyUsersB + "<br/><center>"+ xc +" - "+ xy +"</center>";
+			config.data.datasets.forEach(function(dataset)
+			{
+				dataset.data.push(xc);
+			});
+			window.myLine.update();
+		}
+		setInterval(function()
+		{
+            f = Math.floor(Math.random() * 3);
+            if (f == 0)
+            {
+                c = Math.floor(Math.random() * 10);
+                d = Math.floor(Math.random() * 4);
+                if (d == 0)
+                {
+                    MoneyUsersA += c;
+                }
+                else if (d == 1)
+                {
+                    MoneyUsersA -= c;
+                }
+                else if (d == 2)
+                {
+                    MoneyUsersB += c;
+                }
+                else if (d == 3)
+                {
+                    MoneyUsersB -= c;
+                }
+                MoneyUpdate();
+            }
+            else if (f == 1)
+            {
+                c = Math.random() * 2.5;
+                d = Math.floor(Math.random() * 2)
+                if (d == 0)
+                {
+                    MoneyA -= c;
+                    MoneyB += c;
+                }
+                else
+                {
+                    MoneyA += c;
+                    MoneyB -= c;
+                }
+                MoneyUpdate();
+            }
+            else if (f == 2)
+            {
+                c = Math.random() * 2.5;
+                d = Math.floor(Math.random() * 4);
+                if (d == 0)
+                {
+                    FreeMoneyA -= c;
+                    if (MoneyA < FreeMoneyA)
+                    {
+                        FreeMoneyA = MoneyA;
+                    }
+                }
+                else if (d == 1)
+                {
+                    FreeMoneyA += c;
+                    if (MoneyA < FreeMoneyA)
+                    {
+                        FreeMoneyA = MoneyA;
+                    }
+                }
+                else if (d == 2)
+                {
+                    FreeMoneyB += c;
+                    if (MoneyB < FreeMoneyB)
+                    {
+                        FreeMoneyB = MoneyB;
+                    }
+                }
+                else if (d == 3)
+                {
+                    FreeMoneyB -= c;
+                    if (MoneyB < FreeMoneyB)
+                    {
+                        FreeMoneyB = MoneyB;
+                    }
+                }
+                MoneyUpdate();
+            }
+		}, 1000);
+		var config =
+		{
+			type: 'line',
+			data:
+			{
+				labels: [1],
+				datasets: [{label: 'Para Birimi 1 / Para Birimi 2', fill: false, backgroundColor: window.chartColors.blue, borderColor: window.chartColors.blue,
+				data: [1]
+				}]
+			},
+			options:
+			{
+				responsive: true,
+				plugins:
+				{
+					title: {display: true, text: 'Döviz Kuru'
+					},
+					tooltip: {mode: 'index', intersect: false,
+					}
+				},
+				hover: {mode: 'nearest', intersect: true
+				}
+			}
+		};
+		window.onload = function()
+		{
+			var ctx = document.getElementById('canvas').getContext('2d');
+			window.myLine = new Chart(ctx, config);
+		};
+		document.getElementById('MoneyBuy').addEventListener('click', function()
+		{
+			var c = parseInt(document.getElementById('Money').value);
+			MoneyA -= c;
+			MoneyB += c;
+			MoneyUpdate();
+		});
+		document.getElementById('MoneySell').addEventListener('click', function()
+		{
+			var c = parseInt(document.getElementById('Money').value);
+			MoneyA += c;
+			MoneyB -= c;
+			MoneyUpdate();
+		});
+		document.getElementById('FreeMoneyAdd').addEventListener('click', function()
+		{
+			var Money = parseInt(document.getElementById('Money2').value);
+			var MoneyType = parseInt(document.getElementById('MoneyType2').value);
+			if (MoneyType == 0)
+			{
+				FreeMoneyA += Money;
+			}
+			else
+			{
+				FreeMoneyB += Money;
+			}
+			MoneyUpdate();
+		});
+		document.getElementById('FreeMoneyRemove').addEventListener('click', function()
+		{
+			var Money = parseInt(document.getElementById('Money2').value);
+			var MoneyType = parseInt(document.getElementById('MoneyType2').value);
+			if (MoneyType == 0)
+			{
+				FreeMoneyA -= Money;
+			}
+			else
+			{
+				FreeMoneyB -= Money;
+			}
+			MoneyUpdate();
+		});
+		document.getElementById('UserAdd').addEventListener('click', function()
+		{
+			var User = parseInt(document.getElementById('User').value);
+			var MoneyType = parseInt(document.getElementById('MoneyType').value);
+			if (MoneyType == 0)
+			{
+				MoneyUsersA += User;
+			}
+			else
+			{
+				MoneyUsersB += User;
+			}
+			MoneyUpdate();
+		});
+		document.getElementById('UserRemove').addEventListener('click', function()
+		{
+			var User = parseInt(document.getElementById('User').value);
+			var MoneyType = parseInt(document.getElementById('MoneyType').value);
+			if (MoneyType == 0)
+			{
+				MoneyUsersA -= User;
+			}
+			else
+			{
+				MoneyUsersB -= User;
+			}
+			MoneyUpdate();
+		});
+	</script>
+</body>
+</html>
